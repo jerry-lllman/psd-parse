@@ -1,4 +1,4 @@
-use psd_rs::PSD;
+use psd_parse::PSD;
 
 #[test]
 fn load_psd() {

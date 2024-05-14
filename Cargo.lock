@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "psd-rs"
+name = "psd-parse"
 version = "0.1.0"
 dependencies = [
  "thiserror",
