@@ -36,8 +36,16 @@ impl<'a> PSDCursor<'a> {
     bytes
   }
 
+  pub fn read_2bytes(&mut self) -> &[u8] {
+    self.read(2)
+  }
+
   pub fn read_4bytes(&mut self) -> &[u8] {
     self.read(4)
+  }
+
+  pub fn read_6bytes(&mut self) -> &[u8] {
+    self.read(6)
   }
 
   /// Read 4 bytes as a u32

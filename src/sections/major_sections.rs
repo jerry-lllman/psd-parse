@@ -1,6 +1,6 @@
 use super::{file_header_section::{FileHeaderSectionError, EXPECTED_PSD_SIGNATURE}, psd_cursor::PSDCursor};
 
-const FILE_HEADER_LENGTH: usize = 26;
+pub(crate) const FILE_HEADER_LENGTH: usize = 26;
 
 pub struct MajorSections<'a> {
     pub(crate) file_header: &'a [u8],
