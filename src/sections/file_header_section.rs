@@ -13,6 +13,31 @@ const EXPECTED_PSD_VERSION: [u8; 2] = [0, 1];
 /// Bytes representing the Reserved section of the header
 const EXPECTED_PSD_RESERVED: [u8; 6] = [0; 6];
 
+
+#[derive(Debug, PartialEq, Error)]
+pub enum FileHeaderSectionError {
+    #[error("A file section header is comprised of 26 bytes, you provided {length} bytes.")]
+    IncorrectLength { length: usize },
+    #[error(r#"File signature verification fails, expects the first bytes (indices 0-3) to always equal [56, 66, 80,], which in string form is '8BPS'."#)]
+    InvalidSignature,
+    #[error(
+        r#"Bytes 5 and 6 (indices 4-5) must always be [0, 1], Representing a PSD version of 1."#
+    )]
+    InvalidVersion,
+    #[error(r#"Bytes 7-12 (indices 6-11) must be zeroes"#)]
+    InvalidReserved,
+    #[error("Invalid channel count: {channel_count}. Must be 1 <= channel count <= 56")]
+    ChannelCountOutOfRange { channel_count: u8 },
+    #[error("Invalid height: {height}. Must be 1 <= height <= 30,000")]
+    HeightOutOfRange { height: u32 },
+    #[error("Invalid width: {width}. Must be 1 <= width <= 30,000")]
+    WidthOutOfRange { width: u32 },
+    #[error("Depth {depth} is invalid. Must be 1, 8, 16 or 32")]
+    InvalidDepth { depth: u8 },
+    #[error("invalid color mode {color_mode}. Must be 0, 1, 2, 3, 4, 7, 8 or 9")]
+    InvalidColorMode { color_mode: u8 },
+}
+
 #[derive(Debug)]
 pub struct FileHeaderSection {
     pub(crate) version: PSDVersion,
@@ -93,30 +118,6 @@ impl FileHeaderSection {
         Ok(file_header_section)
 
     }
-}
-
-#[derive(Debug, PartialEq, Error)]
-pub enum FileHeaderSectionError {
-    #[error("A file section header is comprised of 26 bytes, you provided {length} bytes.")]
-    IncorrectLength { length: usize },
-    #[error(r#"File signature verification fails, expects the first bytes (indices 0-3) to always equal [56, 66, 80,], which in string form is '8BPS'."#)]
-    InvalidSignature,
-    #[error(
-        r#"Bytes 5 and 6 (indices 4-5) must always be [0, 1], Representing a PSD version of 1."#
-    )]
-    InvalidVersion,
-    #[error(r#"Bytes 7-12 (indices 6-11) must be zeroes"#)]
-    InvalidReserved,
-    #[error("Invalid channel count: {channel_count}. Must be 1 <= channel count <= 56")]
-    ChannelCountOutOfRange { channel_count: u8 },
-    #[error("Invalid height: {height}. Must be 1 <= height <= 30,000")]
-    HeightOutOfRange { height: u32 },
-    #[error("Invalid width: {width}. Must be 1 <= width <= 30,000")]
-    WidthOutOfRange { width: u32 },
-    #[error("Depth {depth} is invalid. Must be 1, 8, 16 or 32")]
-    InvalidDepth { depth: u8 },
-    #[error("invalid color mode {color_mode}. Must be 0, 1, 2, 3, 4, 7, 8 or 9")]
-    InvalidColorMode { color_mode: u8 },
 }
 
 #[derive(Debug)]

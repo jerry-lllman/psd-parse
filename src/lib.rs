@@ -5,6 +5,15 @@ use crate::sections::MajorSections;
 
 mod sections;
 
+
+#[derive(Debug, Error)]
+pub enum PSDError {
+    #[error("Failed to parse PSD header: '{0}'.")]
+    HeaderError(FileHeaderSectionError),
+    #[error("Failed to parse PSD resource section: '{0}'.")]
+    ResourcesError(ImageResourcesSectionError),
+}
+
 #[derive(Debug)]
 pub struct PSD {
     file_header_section: FileHeaderSection,
@@ -29,12 +38,4 @@ impl PSD {
 
         Ok(psd)
     }
-}
-
-#[derive(Debug, Error)]
-pub enum PSDError {
-    #[error("Failed to parse PSD header: '{0}'.")]
-    HeaderError(FileHeaderSectionError),
-    #[error("Failed to parse PSD resource section: '{0}'.")]
-    ResourcesError(ImageResourcesSectionError),
 }
