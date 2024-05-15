@@ -48,6 +48,16 @@ impl<'a> PSDCursor<'a> {
     self.read(6)
   }
 
+  /// Read 2 bytes as u16
+  pub fn read_2bytes_as_u16(&mut self) -> u16 {
+    let bytes = self.read_2bytes();
+
+    let mut array = [0; 2];
+    array.copy_from_slice(bytes);
+
+    u16::from_be_bytes(array)
+  }
+
   /// Read 4 bytes as a u32
   pub fn read_4bytes_as_u32(&mut self) -> u32 {
     let bytes = self.read_4bytes();

@@ -50,6 +50,16 @@ impl FileHeaderSection {
           return  Err(FileHeaderSectionError::InvalidReserved);
         }
 
+        // The next 2 bytes represent the channel count
+        // The number of channels in the image, including any alpha channels. Supported range is 1 to 56.
+        let channel_count = cursor.read_2bytes_as_u16() as u8;
+        let channel_count = ChannelCount::new(channel_count)
+          .ok_or(FileHeaderSectionError::ChannelCountOutOfRange { channel_count })?;
+
+        let height = cursor.read_4bytes_as_u32();
+        let height = PSDHeight::new(height);
+
+
 
         unimplemented!()
     }
@@ -64,7 +74,9 @@ pub enum FileHeaderSectionError {
     #[error(r#"Bytes 5 and 6 (indices 4-5) must always be [0, 1], Representing a PSD version of 1."#)]
     InvalidVersion,
     #[error(r#"Bytes 7-12 (indices 6-11) must be zeroes"#)]
-    InvalidReserved
+    InvalidReserved,
+    #[error("Invalid channel count: {channel_count}. Must be 1 <= channel count <= 56")]
+    ChannelCountOutOfRange { channel_count: u8 },
 }
 
 #[derive(Debug)]
@@ -75,3 +87,24 @@ pub enum PSDVersion {
 
 #[derive(Debug)]
 pub struct ChannelCount(u8);
+
+impl ChannelCount {
+  pub fn new(channel_count: u8) -> Option<Self> {
+    match channel_count {
+      1..=65 => Some(ChannelCount(channel_count)),
+      _ => None
+    }
+  }
+}
+
+#[derive(Debug)]
+pub struct PSDHeight(pub(in crate) u32);
+
+impl PSDHeight {
+    pub fn new (height: u32) -> Option<Self> {
+      match height {
+        1..=30_000 => Some(Self(height)),
+        _ => None
+      }
+    }
+}
