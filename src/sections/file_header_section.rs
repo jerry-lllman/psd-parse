@@ -14,11 +14,22 @@ const EXPECTED_PSD_VERSION: [u8; 2] = [0, 1];
 const EXPECTED_PSD_RESERVED: [u8; 6] = [0; 6];
 
 
+#[derive(Debug)]
+pub struct FileHeaderSection {
+    pub(crate) version: PSDVersion,
+    pub(crate) channel_count: ChannelCount,
+    pub(crate) height: PSDHeight,
+    pub(crate) width: PSDWidth,
+    pub(crate) depth: PSDDepth,
+    pub(crate) color_mode: PSDColorMode,
+}
+
+
 #[derive(Debug, PartialEq, Error)]
 pub enum FileHeaderSectionError {
     #[error("A file section header is comprised of 26 bytes, you provided {length} bytes.")]
     IncorrectLength { length: usize },
-    #[error(r#"File signature verification fails, expects the first bytes (indices 0-3) to always equal [56, 66, 80,], which in string form is '8BPS'."#)]
+    #[error(r#"File signature verification fails, expects the first bytes (indices 0-3) to always equal [56, 66, 80, 83], which in string form is '8BPS'."#)]
     InvalidSignature,
     #[error(
         r#"Bytes 5 and 6 (indices 4-5) must always be [0, 1], Representing a PSD version of 1."#
@@ -36,16 +47,6 @@ pub enum FileHeaderSectionError {
     InvalidDepth { depth: u8 },
     #[error("invalid color mode {color_mode}. Must be 0, 1, 2, 3, 4, 7, 8 or 9")]
     InvalidColorMode { color_mode: u8 },
-}
-
-#[derive(Debug)]
-pub struct FileHeaderSection {
-    pub(crate) version: PSDVersion,
-    pub(crate) channel_count: ChannelCount,
-    pub(crate) height: PSDHeight,
-    pub(crate) width: PSDWidth,
-    pub(crate) depth: PSDDepth,
-    pub(crate) color_mode: PSDColorMode,
 }
 
 impl FileHeaderSection {
