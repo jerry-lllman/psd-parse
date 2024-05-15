@@ -56,8 +56,11 @@ impl FileHeaderSection {
         let channel_count = ChannelCount::new(channel_count)
           .ok_or(FileHeaderSectionError::ChannelCountOutOfRange { channel_count })?;
 
+        // The next 4 bytes represent the height
+        // The height of the image in pixels. Supported range is 1 to 30,000.
         let height = cursor.read_4bytes_as_u32();
-        let height = PSDHeight::new(height);
+        let height = PSDHeight::new(height)
+          .ok_or(FileHeaderSectionError::HeightOutOfRange { height })?;
 
 
 
@@ -77,6 +80,8 @@ pub enum FileHeaderSectionError {
     InvalidReserved,
     #[error("Invalid channel count: {channel_count}. Must be 1 <= channel count <= 56")]
     ChannelCountOutOfRange { channel_count: u8 },
+    #[error("Invalid height: {height}. Must be 1 <= height <= 30,000")]
+    HeightOutOfRange { height: u32 },
 }
 
 #[derive(Debug)]
