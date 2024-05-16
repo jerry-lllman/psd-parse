@@ -5,6 +5,13 @@ use thiserror::Error;
 use crate::sections::psd_cursor::PSDCursor;
 
 const EXPECTED_RESOURCE_BLOCK_SIGNATURE: [u8; 4] = [56, 66, 73, 77];
+const RESOURCE_SLICES_INFO: i16 = 1050;
+
+struct ImageResourceBlock {
+  resource_id: i16,
+  name: String,
+  data_range: Range<usize>,
+}
 
 #[derive(Debug, Error)]
 pub enum ImageResourcesSectionError {
@@ -27,12 +34,30 @@ impl ImageResourcesSection {
         let length = cursor.read_4bytes_as_u32() as u64;
 
         while cursor.position() < length {
-            let block = Self::read_resource_block(&mut cursor);
+            let block = Self::read_resource_block(&mut cursor)?;
+            
+            match block.resource_id {
+              RESOURCE_SLICES_INFO => {
+                
+              },
+              _ => {}
+            }
         }
 
         unimplemented!()
     }
 
+
+    /// +----------+--------------------------------------------------------------------------------------------------------------------+
+    /// |  Length  |                                                    Description                                                     |
+    /// +----------+--------------------------------------------------------------------------------------------------------------------+
+    /// | 4        | Signature: '8BIM'                                                                                                  |
+    /// | 2        | Unique identifier for the resource. Image resource IDs contains a list of resource IDs used by Photoshop.          |
+    /// | Variable | Name: Pascal string, padded to make the size even (a null name consists of two bytes of 0)                         |
+    /// | 4        | Actual size of resource data that follows                                                                          |
+    /// | Variable | The resource data, described in the sections on the individual resource types. It is padded to make the size even. |
+    /// +----------+--------------------------------------------------------------------------------------------------------------------+
+    
     fn read_resource_block(
         cursor: &mut PSDCursor,
     ) -> Result<ImageResourceBlock, ImageResourcesSectionError> {
@@ -63,10 +88,4 @@ impl ImageResourcesSection {
           data_range
         })
     }
-}
-
-struct ImageResourceBlock {
-    resource_id: i16,
-    name: String,
-    data_range: Range<usize>,
 }

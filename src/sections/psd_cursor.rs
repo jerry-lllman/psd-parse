@@ -15,6 +15,10 @@ impl<'a> PSDCursor<'a> {
     self.cursor.position()
   }
 
+  pub fn get_ref(&self) -> &[u8] {
+    self.cursor.get_ref()
+  }
+
   pub fn peek(&self, n: u8) -> &[u8] {
     let start = self.cursor.position() as usize;
     let end = start + n as usize;
